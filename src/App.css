@@ -1,0 +1,95 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* ===========================
+   🚗 BIL-LISTA – NY STIL
+   =========================== */
+
+.App {
+  min-height: 100vh;
+  min-width: 150vh;
+  padding: 3rem 1rem;
+  background:  #fff3bf;
+  color: #4c3a3aed;
+  text-align: center;
+  font-family: system-ui, sans-serif;
+  border-radius: 16px;
+}
+
+.App h1 {
+  margin-bottom: 2rem;
+  font-size: 3rem;
+  letter-spacing: -0.5px;
+}
+
+.bil-grid {
+  display: grid;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.bil-card {
+  background: rgba(90, 73, 73, 0.448);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bil-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.bil-card h2 {
+  margin-bottom: 0.5rem;
+  color: #e9f09f;
+}
+
+.bil-card p {
+  margin: 0.3rem 0;
+  font-size: 1.1rem;
+}
