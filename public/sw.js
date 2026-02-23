@@ -1,20 +1,20 @@
-const CACHE_NAME = "bilar-static-v3";
-const CACHE_DYNAMIC_NAME = "bilar-dynamic-v3";
+const STATIC_CACHE = "bilar-static-v6";
+const DYNAMIC_CACHE = "bilar-dynamic-v6";
 
-const urlsToCache = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./offline.html",
-  "./icons/icon-192x192.png",
-  "./icons/icon-512x512.png"
+const STATIC_FILES = [
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/offline.html",
+  "/icons/icon-192x192.png",
+  "/icons/icon-512x512.png"
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_FILES))
   );
-  self.skipWaiting(); 
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -22,46 +22,64 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((k) => k !== CACHE_NAME && k !== CACHE_DYNAMIC_NAME)
+          .filter((k) => k !== STATIC_CACHE && k !== DYNAMIC_CACHE)
           .map((k) => caches.delete(k))
       )
     )
   );
-  self.clients.claim(); 
+  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  const req = event.request;
 
-  const url = new URL(event.request.url);
+  // stoppa chrome-extension crash
+  if (!req.url.startsWith("http")) return;
+  if (req.method !== "GET") return;
 
-  if (
-    url.pathname.startsWith("/@vite") ||
-    url.pathname.startsWith("/@react-refresh") ||
-    url.pathname.includes("hot-update")
-  ) {
+  // API: /bilar network-first + cache fallback
+  if (req.url.includes("/bilar")) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (!res || res.status !== 200) return res;
+          return caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(req, res.clone());
+            return res;
+          });
+        })
+        .catch(() =>
+          caches.match(req).then((cached) => {
+            if (cached) return cached;
+            return new Response("[]", {
+              headers: { "Content-Type": "application/json" },
+            });
+          })
+        )
+    );
     return;
   }
 
-  if (url.origin === location.origin) {
-    event.respondWith(
-      caches.match(event.request).then((cached) => {
-        if (cached) return cached;
+  event.respondWith(
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
 
-        return fetch(event.request)
-          .then((res) => {
-            if (!res || res.status !== 200) return res;
-            return caches.open(CACHE_DYNAMIC_NAME).then((cache) => {
-              cache.put(event.request, res.clone()); 
-              return res;
-            });
-          })
-          .catch(() => {
-            if (event.request.headers.get("accept")?.includes("text/html")) {
-              return caches.match("./offline.html");
-            }
+      return fetch(req)
+        .then((res) => {
+          if (!res || res.status !== 200) return res;
+
+          return caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(req, res.clone());
+            return res;
           });
-      })
-    );
-  }
+        })
+        .catch(() => {
+          // offline.html
+          if (req.headers.get("accept")?.includes("text/html")) {
+            return caches.match("/offline.html");
+          }
+          return new Response("", { status: 504 });
+        });
+    })
+  );
 });
