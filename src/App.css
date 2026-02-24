@@ -41,19 +41,16 @@
   color: #888;
 }
 
-/* ===========================
-   🚗 BIL-LISTA – NY STIL
-   =========================== */
-
 .App {
   min-height: 100vh;
-  min-width: 150vh;
+  width: 100%;            
   padding: 3rem 1rem;
-  background:  #fff3bf;
+  background: #fff3bf;
   color: #4c3a3aed;
   text-align: center;
   font-family: system-ui, sans-serif;
   border-radius: 16px;
+  box-sizing: border-box;   
 }
 
 .App h1 {
@@ -92,4 +89,8 @@
 .bil-card p {
   margin: 0.3rem 0;
   font-size: 1.1rem;
+}
+
+body {
+  overflow-x: hidden;
 }
